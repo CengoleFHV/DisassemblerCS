@@ -1,15 +1,10 @@
-﻿namespace DisassemblerCS;
+﻿namespace RiscVCS;
 
 public class Encoder
 {
-    public Encoder()
+    public static void encodeInstruction(uint instructionHex, RiscV riscV)
     {
-
-    }
-
-    public static void encodeInstruction(uint instructionHex)
-    {
-        RISCVInstruction instruction = new RISCVInstruction();
+        Instruction instruction = new Instruction();
 
         instruction.OpCode = instructionHex & 0x7f;
         instruction.Funct3 = (instructionHex & 0x7000) >> 12;
@@ -21,29 +16,29 @@ public class Encoder
             case 0b_001_0011:
             case 0b_111_0011:
                 instruction.IEF = IEF.I;
-                encodeI(instruction, instructionHex);
+                encodeI(instruction, instructionHex, riscV);
                 break;
             case 0b_011_0111:
             case 0b_001_0111:
                 instruction.IEF = IEF.U;
                 instruction.Funct3 = null;
-                encodeU(instruction, instructionHex);
+                encodeU(instruction, instructionHex, riscV);
                 break;
             case 0b_110_1111:
                 instruction.IEF = IEF.J;
-                encodeJ(instruction, instructionHex);
+                encodeJ(instruction, instructionHex, riscV);
                 break;
             case 0b_110_0011:
                 instruction.IEF = IEF.B;
-                encodeB(instruction, instructionHex);
+                encodeB(instruction, instructionHex, riscV);
                 break;
             case 0b_010_0011:
                 instruction.IEF = IEF.S;
-                encodeS(instruction, instructionHex);
+                encodeS(instruction, instructionHex, riscV);
                 break;
             case 0b_011_0011:
                 instruction.IEF = IEF.R;
-                encodeR(instruction, instructionHex);
+                encodeR(instruction, instructionHex, riscV);
                 break;
             default:
                 throw new Exception("OpCode not Found");
@@ -51,17 +46,11 @@ public class Encoder
 
     }
 
-    private static void encodeI(RISCVInstruction instruction, uint instructionHex)
+    private static void encodeI(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rd = (instructionHex & 0xf80) >> 7;
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
-        instruction.ImmValue = (int?)((instructionHex & 0xfff00000) >> 20);
-
-        //check if MSB hex is over 7, two's Complement
-        if (((instruction.ImmValue & 0x800) >> 11) == 1)
-        {
-            instruction.ImmValue = instruction.ImmValue | -0x1000;
-        }
+        instruction.ImmValue = (int)((instructionHex & 0xfff00000) >> 20);
 
         switch (instruction.OpCode)
         {
@@ -105,6 +94,9 @@ public class Encoder
                     case 0b_000:
                         //addi Instruction
                         Console.WriteLine($"addi x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
+                        int rs1Value = riscV.readRegisterValue(instruction.Rs1);
+                        int toAdd = rs1Value + instruction.ImmValue;
+                        riscV.writeRegisterValue(instruction.Rd, toAdd);
                         break;
                     case 0b_001:
                         throw new NotImplementedException();
@@ -120,8 +112,6 @@ public class Encoder
                         //xori Instruction
                         Console.WriteLine($"xori x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
                         break;
-                    case 0b_101:
-                        throw new NotImplementedException();
                     case 0b_110:
                         //ori Instruction
                         Console.WriteLine($"ori x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
@@ -139,12 +129,12 @@ public class Encoder
         }
     }
 
-    private static void encodeR(RISCVInstruction instruction, uint instructionHex)
+    private static void encodeR(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rd = (instructionHex & 0xf80) >> 7;
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
         instruction.Rs2 = (instructionHex & 0x1f00000) >> 20;
-        instruction.Funct7 = (uint?)((instructionHex & -0x2000000) >> 25);
+        instruction.Funct7 = (uint)((instructionHex & -0x2000000) >> 25);
 
         bool isRV32M = instruction.Funct7 == 1;
         bool isSub = instruction.Funct7 == 0b_010_000;
@@ -193,7 +183,6 @@ public class Encoder
         else
         {
             //add, sub, sll, slt, sltu, xor, srl, sra, or, and Instructions
-
             if (isSub)
             {
                 switch (instruction.Funct3)
@@ -253,31 +242,14 @@ public class Encoder
             }
         }
     }
-
-    private static void encodeB(RISCVInstruction instruction, uint instructionHex)
-    {
-        throw new NotImplementedException("Whoopsie Poopsie 😔");
-    }
-
-    private static void encodeU(RISCVInstruction instruction, uint instructionHex)
-    {
-        throw new NotImplementedException("Whoopsie Poopsie 😔");
-    }
-
-    private static void encodeS(RISCVInstruction instruction, uint instructionHex)
+    private static void encodeS(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         int imm11_7 = (int)(instructionHex & 0xf80) >> 7;
         int imm31_25 = (int)((instructionHex & -0x2000000) >> 25);
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
         instruction.Rs2 = (instructionHex & 0x1f00000) >> 20;
 
-        instruction.ImmValue = (imm11_7 | (imm31_25 << 5));
-
-        //check if MSB hex is over 7, two's Complement
-        if (((instruction.ImmValue & 0x800) >> 11) == 1)
-        {
-            instruction.ImmValue = instruction.ImmValue | -0x1000;
-        }
+        instruction.ImmValue = imm11_7 | imm31_25 << 5;
 
         switch (instruction.Funct3)
         {
@@ -296,11 +268,91 @@ public class Encoder
             default:
                 throw new Exception("Funct3 Code not Found");
         }
-
     }
 
-    private static void encodeJ(RISCVInstruction instruction, uint instructionHex)
+    private static void encodeU(Instruction instruction, uint instructionHex, RiscV riscV)
     {
-        throw new NotImplementedException("Whoopsie Poopsie 😔");
+        instruction.Rd = (instructionHex & 0xf80) >> 7;
+        instruction.ImmValue = (int)((instructionHex & 0xfffff000) >> 12);
+
+        switch (instruction.OpCode)
+        {
+            case 0b_011_0111:
+                //lui Instruction
+                Console.WriteLine($"lui x{instruction.Rd}, {instruction.ImmValue}");
+                break;
+            case 0b_001_0111:
+                // auipc Instruction
+                Console.WriteLine($"auipc x{instruction.Rd}, {instruction.ImmValue}");
+                break;
+            default:
+                throw new Exception("OpCode not in U Found");
+        }
     }
+
+
+    private static void encodeJ(Instruction instruction, uint instructionHex, RiscV riscV)
+    {
+        instruction.Rd = (instructionHex & 0xf80) >> 7;
+
+        uint imm_20 = (instructionHex & 0x80000000) >> 11;
+        uint imm_10_1 = (instructionHex & 0x7ff00000) >> 20;
+        uint imm_11 = (instructionHex & 0x80000) >> 9;
+        uint imm_19_12 = instructionHex & 0x7f800;
+
+        instruction.ImmValue = (int)(0x0 | imm_20 | imm_10_1 | imm_11 | imm_19_12);
+
+        switch (instruction.OpCode)
+        {
+            case 0b_110_1111:
+                //jal Instruction
+                Console.WriteLine($"jal x{instruction.Rd}, {instruction.ImmValue}");
+                break;
+            default:
+                throw new Exception("OpCode not in J Found");
+        }
+    }
+
+    private static void encodeB(Instruction instruction, uint instructionHex, RiscV riscV)
+    {
+        instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
+        instruction.Rs2 = (instructionHex & 0x1f00000) >> 20;
+        uint imm_12 = (instructionHex & 0x80000000) >> 19;
+        uint imm_10_5 = (instructionHex & 0x7e000000) >> 20;
+        uint imm_4_1 = (instructionHex & 0xf00) >> 7;
+        uint imm_11 = (instructionHex & 0x80) << 4;
+
+        instruction.ImmValue = (int)(imm_12 | imm_10_5 | imm_4_1 | imm_11);
+
+        switch (instruction.Funct3)
+        {
+            case 0b_000:
+                //beq Instruction
+                Console.WriteLine($"beq x{instruction.Rs1}, x{instruction.Rs2}, {instruction.ImmValue}");
+                break;
+            case 0b_001:
+                //bne Instruction
+                Console.WriteLine($"bne x{instruction.Rs1}, x{instruction.Rs2}, {instruction.ImmValue}");
+                break;
+            case 0b_100:
+                //blt Instruction
+                Console.WriteLine($"blt x{instruction.Rs1}, x{instruction.Rs2}, {instruction.ImmValue}");
+                break;
+            case 0b_101:
+                //bge Instruction
+                Console.WriteLine($"bge x{instruction.Rs1}, x{instruction.Rs2}, {instruction.ImmValue}");
+                break;
+            case 0b_110:
+                //bltu Instruction
+                Console.WriteLine($"bltu x{instruction.Rs1}, x{instruction.Rs2}, {instruction.ImmValue}");
+                break;
+            case 0b_111:
+                //bgeu Instruction
+                Console.WriteLine($"bgeu x{instruction.Rs1}, x{instruction.Rs2}, {instruction.ImmValue}");
+                break;
+            default:
+                throw new Exception("Funct3 Code not Found");
+        }
+    }
+
 }
