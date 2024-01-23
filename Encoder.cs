@@ -52,11 +52,16 @@ public class Encoder
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
         instruction.ImmValue = (int)((instructionHex & 0xfff00000) >> 20);
 
+        uint address = (uint)(riscV.readRegisterValue(instruction.Rs1) + instruction.ImmValue);
+        var memoryValue = riscV.readMemoryValue(address);
+
         switch (instruction.OpCode)
         {
             case 0b_110_0111:
                 //jalr Instruction
                 Console.WriteLine($"jalr x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
+                riscV.writeRegisterValue(instruction.Rd, riscV.PC + 1);
+                riscV.PC = (int)address;
                 break;
             case 0b_000_0011:
                 //lb, lh, lw, lbu, lhu Instruction
@@ -73,6 +78,8 @@ public class Encoder
                     case 0b_010:
                         //lw Instruction
                         Console.WriteLine($"lw x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
+                        riscV.writeRegisterValue(instruction.Rd, memoryValue);
+                        riscV.PC++;
                         break;
                     case 0b_100:
                         //lbu Instruction
@@ -97,6 +104,7 @@ public class Encoder
                         int rs1Value = riscV.readRegisterValue(instruction.Rs1);
                         int toAdd = rs1Value + instruction.ImmValue;
                         riscV.writeRegisterValue(instruction.Rd, toAdd);
+                        riscV.PC++;
                         break;
                     case 0b_001:
                         throw new NotImplementedException();
@@ -139,6 +147,9 @@ public class Encoder
         bool isRV32M = instruction.Funct7 == 1;
         bool isSub = instruction.Funct7 == 0b_010_000;
 
+        var rs1Value = riscV.readRegisterValue(instruction.Rs1);
+        var rs2Value = riscV.readRegisterValue(instruction.Rs2);
+
         if (isRV32M)
         {
             //mul, mulh, mulhsu, mulhu, div, divu, rem, remu Instructions
@@ -147,6 +158,8 @@ public class Encoder
                 case 0b_000:
                     //mul Instruction
                     Console.WriteLine($"mul x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
+                    riscV.writeRegisterValue(instruction.Rd, rs1Value * rs2Value);
+                    riscV.PC++;
                     break;
                 case 0b_001:
                     //mulh Instruction
@@ -251,19 +264,33 @@ public class Encoder
 
         instruction.ImmValue = imm11_7 | imm31_25 << 5;
 
+        uint address = (uint)(instruction.Rs1 + instruction.ImmValue);
+        var rs2Value = riscV.readRegisterValue(instruction.Rs2);
+        var memoryValue = riscV.readMemoryValue(address);
+
         switch (instruction.Funct3)
         {
             case 0b_000:
                 //sb Instruction
                 Console.WriteLine($"sb x{instruction.Rs2}, {instruction.ImmValue}(x{instruction.Rs1})");
+                byte byteRs2Value = (byte)rs2Value;
+
+                riscV.writeMemoryValue(address, memoryValue | byteRs2Value);
+                riscV.PC++;
                 break;
             case 0b_001:
                 //sh Instruction
                 Console.WriteLine($"sh x{instruction.Rs2}, {instruction.ImmValue}(x{instruction.Rs1})");
+                ushort shortRs2Value = (ushort)rs2Value;
+
+                riscV.writeMemoryValue(address, memoryValue | shortRs2Value);
+                riscV.PC++;
                 break;
             case 0b_010:
                 //sw Instruction
                 Console.WriteLine($"sw x{instruction.Rs2}, {instruction.ImmValue}(x{instruction.Rs1})");
+                riscV.writeMemoryValue((uint)address, rs2Value);
+                riscV.PC++;
                 break;
             default:
                 throw new Exception("Funct3 Code not Found");

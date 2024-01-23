@@ -46,8 +46,7 @@ uint[] squareArray = [
 //    0xFE017113, //andi x2, x2, -32
 //];
 
-try
-{
+try {
     RiscV risky = new RiscV();
 
     risky.AddInstructions(squareArray);
@@ -55,11 +54,10 @@ try
     risky.RunInstructions();
 
     risky.dumpInstructionRegistry();
-
     risky.dumpRegistry();
+    risky.dumpMemory();
 }
-catch (Exception e)
-{
+catch (Exception e) {
     Console.WriteLine($"Exception: {e.Message}");
     throw;
 }
