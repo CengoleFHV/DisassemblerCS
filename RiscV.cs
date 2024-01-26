@@ -65,12 +65,18 @@ public class RiscV
 
 
         var sorted = Memory.OrderByDescending(a => a.Key);
-
-        foreach (var block in sorted)
+        if (Memory.Count > 0)
         {
-            var memoryValue = block.Value;
-            var memoryAddress = block.Key;
-            Console.WriteLine(String.Format("|{0,16}  |{1,12}  |{2,12}  |{3,34}  |", $"0x{memoryAddress.ToString("X8")}", $"{block.Value}", $"0x{memoryValue.ToString("X8")}", $"{memoryValue.ToString("B32")}"));
+            foreach (var block in sorted)
+            {
+                var memoryValue = block.Value;
+                var memoryAddress = block.Key;
+                Console.WriteLine(String.Format("|{0,16}  |{1,12}  |{2,12}  |{3,34}  |", $"0x{memoryAddress.ToString("X8")}", $"{block.Value}", $"0x{memoryValue.ToString("X8")}", $"{memoryValue.ToString("B32")}"));
+            }
+        }
+        else
+        {
+            Console.WriteLine(String.Format("|{0,16}  |{1,12}  |{2,12}  |{3,34}  |", "", "", "", ""));
         }
         Console.WriteLine("".PadRight(87, '-'));
         Console.WriteLine();
@@ -106,6 +112,10 @@ public class RiscV
 
     public void writeMemoryValue(uint memoryAddress, int value)
     {
+        /* TODO Built check for memory Range
+         * Memory must be between
+         * 0x0000000 and 0x7ffffffff
+         */
         Memory[(int)memoryAddress] = value;
     }
 
@@ -120,7 +130,9 @@ public class RiscV
     {
         do
         {
-            Encoder.encodeInstruction(InstructionRegistry[PC - 1], this);
+            Encoder.decodeInstruction(InstructionRegistry[PC - 1], this);
+            dumpRegistry();
+            dumpMemory();
         } while (PC != 0);
     }
 }

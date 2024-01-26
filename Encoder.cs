@@ -2,7 +2,7 @@
 
 public class Encoder
 {
-    public static void encodeInstruction(uint instructionHex, RiscV riscV)
+    public static void decodeInstruction(uint instructionHex, RiscV riscV)
     {
         Instruction instruction = new Instruction();
 
