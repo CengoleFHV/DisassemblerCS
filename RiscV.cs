@@ -8,14 +8,14 @@ public class RiscV
         Registry = new int[32];
         Registry[0] = 0x0;
         InstructionRegistry = new List<uint>(0);
-        Encoder = new Encoder();
+        Decoder = new Decoder();
         Memory = new Dictionary<int, int>();
     }
 
     public int[] Registry { get; set; }
     public List<uint> InstructionRegistry { get; set; }
     public int PC { get; set; }
-    public Encoder Encoder { get; set; }
+    public Decoder Decoder { get; set; }
     public Dictionary<int, int> Memory { get; set; }
 
     public void AddInstructions(uint[] instructions)
@@ -130,9 +130,7 @@ public class RiscV
     {
         do
         {
-            Encoder.decodeInstruction(InstructionRegistry[PC - 1], this);
-            dumpRegistry();
-            dumpMemory();
+            Decoder.decodeInstruction(InstructionRegistry[PC - 1], this);
         } while (PC != 0);
     }
 }

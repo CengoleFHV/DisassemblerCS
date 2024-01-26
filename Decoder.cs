@@ -1,44 +1,45 @@
 ﻿namespace RiscVCS;
 
-public class Encoder
+public class Decoder
 {
     public static void decodeInstruction(uint instructionHex, RiscV riscV)
     {
-        Instruction instruction = new Instruction();
-
-        instruction.OpCode = instructionHex & 0x7f;
-        instruction.Funct3 = (instructionHex & 0x7000) >> 12;
+        Instruction instruction = new Instruction
+        {
+            OpCode = instructionHex & 0x7f,
+            Funct3 = (instructionHex & 0x7000) >> 12
+        };
 
         switch (instruction.OpCode)
         {
-            case 0b_110_0111:
             case 0b_000_0011:
             case 0b_001_0011:
+            case 0b_110_0111:
             case 0b_111_0011:
                 instruction.IEF = IEF.I;
-                encodeI(instruction, instructionHex, riscV);
+                decodeI(instruction, instructionHex, riscV);
                 break;
             case 0b_011_0111:
             case 0b_001_0111:
                 instruction.IEF = IEF.U;
                 instruction.Funct3 = null;
-                encodeU(instruction, instructionHex, riscV);
+                decodeU(instruction, instructionHex, riscV);
                 break;
             case 0b_110_1111:
                 instruction.IEF = IEF.J;
-                encodeJ(instruction, instructionHex, riscV);
+                decodeJ(instruction, instructionHex, riscV);
                 break;
             case 0b_110_0011:
                 instruction.IEF = IEF.B;
-                encodeB(instruction, instructionHex, riscV);
+                decodeB(instruction, instructionHex, riscV);
                 break;
             case 0b_010_0011:
                 instruction.IEF = IEF.S;
-                encodeS(instruction, instructionHex, riscV);
+                decodeS(instruction, instructionHex, riscV);
                 break;
             case 0b_011_0011:
                 instruction.IEF = IEF.R;
-                encodeR(instruction, instructionHex, riscV);
+                decodeR(instruction, instructionHex, riscV);
                 break;
             default:
                 throw new Exception("OpCode not Found");
@@ -46,7 +47,7 @@ public class Encoder
 
     }
 
-    private static void encodeI(Instruction instruction, uint instructionHex, RiscV riscV)
+    private static void decodeI(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rd = (instructionHex & 0xf80) >> 7;
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
@@ -70,11 +71,11 @@ public class Encoder
                     case 0b_000:
                         //lb Instruction
                         Console.WriteLine($"lb x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_001:
                         //lh Instruction
                         Console.WriteLine($"lh x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_010:
                         //lw Instruction
                         Console.WriteLine($"lw x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
@@ -84,11 +85,11 @@ public class Encoder
                     case 0b_100:
                         //lbu Instruction
                         Console.WriteLine($"lbu x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_101:
                         //lhu Instruction
                         Console.WriteLine($"lhu x{instruction.Rd}, {instruction.ImmValue}(x{instruction.Rs1})");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     default:
                         throw new Exception("Funct3 Code not Found");
                 }
@@ -111,23 +112,23 @@ public class Encoder
                     case 0b_010:
                         //slti Instruction
                         Console.WriteLine($"slti x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_011:
                         //sltiu Instruction
                         Console.WriteLine($"sltiu x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_100:
                         //xori Instruction
                         Console.WriteLine($"xori x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_110:
                         //ori Instruction
                         Console.WriteLine($"ori x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_111:
                         //andi Instruction
                         Console.WriteLine($"andi x{instruction.Rd}, x{instruction.Rs1}, {instruction.ImmValue}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     default:
                         throw new Exception("Funct3 Code not Found");
                 }
@@ -137,7 +138,7 @@ public class Encoder
         }
     }
 
-    private static void encodeR(Instruction instruction, uint instructionHex, RiscV riscV)
+    private static void decodeR(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rd = (instructionHex & 0xf80) >> 7;
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
@@ -164,31 +165,31 @@ public class Encoder
                 case 0b_001:
                     //mulh Instruction
                     Console.WriteLine($"mulh x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 case 0b_010:
                     //mulhsu Instruction
                     Console.WriteLine($"mulhsu x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 case 0b_011:
                     //mulhu Instruction
                     Console.WriteLine($"mulhu x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 case 0b_100:
                     //div Instruction
                     Console.WriteLine($"div x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 case 0b_101:
                     //divu Instruction
                     Console.WriteLine($"divu x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 case 0b_110:
                     //rem Instruction
                     Console.WriteLine($"rem x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 case 0b_111:
                     //remu Instruction
                     Console.WriteLine($"remu x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                    break;
+                    throw new NotImplementedException("Not Implemented 😔");
                 default:
                     throw new Exception("Funct3 Code not Found");
             }
@@ -203,11 +204,11 @@ public class Encoder
                     case 0b_000:
                         //sub Instruction
                         Console.WriteLine($"sub x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_101:
                         //sra Instruction
                         Console.WriteLine($"sra x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     default:
                         throw new Exception("Funct3 Code not Found");
                 }
@@ -219,35 +220,35 @@ public class Encoder
                     case 0b_000:
                         //add Instruction
                         Console.WriteLine($"add x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_001:
                         //sll Instruction
                         Console.WriteLine($"sll x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_010:
                         //slt Instruction
                         Console.WriteLine($"slt x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_011:
                         //sltu Instruction
                         Console.WriteLine($"sltu x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_100:
                         //xor Instruction
                         Console.WriteLine($"xor x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_101:
                         //srl Instruction
                         Console.WriteLine($"srl x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_110:
                         //or Instruction
                         Console.WriteLine($"or x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     case 0b_111:
                         //and Instruction
                         Console.WriteLine($"and x{instruction.Rd}, x{instruction.Rs1}, x{instruction.Rs2}");
-                        break;
+                        throw new NotImplementedException("Not Implemented 😔");
                     default:
                         throw new Exception("Funct3 Code not Found");
                 }
@@ -255,7 +256,7 @@ public class Encoder
             }
         }
     }
-    private static void encodeS(Instruction instruction, uint instructionHex, RiscV riscV)
+    private static void decodeS(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         int imm11_7 = (int)(instructionHex & 0xf80) >> 7;
         int imm31_25 = (int)((instructionHex & -0x2000000) >> 25);
@@ -297,7 +298,7 @@ public class Encoder
         }
     }
 
-    private static void encodeU(Instruction instruction, uint instructionHex, RiscV riscV)
+    private static void decodeU(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rd = (instructionHex & 0xf80) >> 7;
         instruction.ImmValue = (int)((instructionHex & 0xfffff000) >> 12);
@@ -318,7 +319,7 @@ public class Encoder
     }
 
 
-    private static void encodeJ(Instruction instruction, uint instructionHex, RiscV riscV)
+    private static void decodeJ(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rd = (instructionHex & 0xf80) >> 7;
 
@@ -340,7 +341,7 @@ public class Encoder
         }
     }
 
-    private static void encodeB(Instruction instruction, uint instructionHex, RiscV riscV)
+    private static void decodeB(Instruction instruction, uint instructionHex, RiscV riscV)
     {
         instruction.Rs1 = (instructionHex & 0xf8000) >> 15;
         instruction.Rs2 = (instructionHex & 0x1f00000) >> 20;

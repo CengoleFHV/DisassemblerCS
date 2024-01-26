@@ -37,7 +37,6 @@ public class Instruction
                 _immValue = value;
             }
         }
-
         /*TODO: Two's Complement am besten mit bitshifting lösen statt dem zerhackten müll
          * >> zieht den MSB durch alles durch (0b_1000 >> 2 würde zu 0b_1110 werden) 
          */
