@@ -1,7 +1,6 @@
 ﻿namespace RiscVCS;
 
-public enum IEF
-{
+public enum IEF {
     U,
     J,
     R,
@@ -10,8 +9,7 @@ public enum IEF
     B
 };
 
-public class Instruction
-{
+public class Instruction {
     public uint OpCode { get; set; }
     public IEF IEF { get; set; }
     public uint Rd { get; set; }
@@ -22,18 +20,13 @@ public class Instruction
 
     private int _immValue;
 
-    public int ImmValue
-    {
+    public int ImmValue {
         get => _immValue;
-        set
-        {
+        set {
             //check if MSB hex is over 7, two's Complement
-            if ((value & 0x800) >> 11 == 1)
-            {
+            if ((value & 0x800) >> 11 == 1) {
                 _immValue = value | -0x1000;
-            }
-            else
-            {
+            } else {
                 _immValue = value;
             }
         }
