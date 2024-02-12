@@ -1,6 +1,7 @@
 ﻿namespace RiscVCS;
 
 public class RiscV {
+    //constructor initialisiert alle nötigen Objekte
     public RiscV() {
         PC = 1;
         Registry = new int[32];
@@ -15,10 +16,6 @@ public class RiscV {
     public int PC { get; set; }
     public Decoder Decoder { get; set; }
     public Dictionary<int, int> Memory { get; set; }
-
-    public void AddInstructions(uint[] instructions) {
-        InstructionRegistry.AddRange(instructions);
-    }
 
     public void dumpInstructionRegistry() {
         Console.WriteLine(String.Format("{0,-76}", String.Format("{0," + ((76 + "Instruction Registry Dump".Length) / 2).ToString() + "}", "Instruction Registry Dump")));
@@ -70,11 +67,16 @@ public class RiscV {
         Console.WriteLine();
     }
 
+    //getter/setter Functions für die Registers und Memorys
+    public void AddInstructions(uint[] instructions) {
+        InstructionRegistry.AddRange(instructions);
+    }
+
     public void writeRegisterValue(uint index, int value) {
         if (index >= 1 && index < 32) {
             Registry[index] = value;
         } else if (index == 0) {
-            return;
+            return; //macht Register x0 Read-Only ohne eine eigene Registerklasse zu implementieren müssen
         } else {
             throw new ArgumentOutOfRangeException($"Register Index is out of Range {index}");
         }
@@ -100,9 +102,8 @@ public class RiscV {
 
     public void RunInstructions() {
         do {
+            //solang PC nicht null ist durch alle instructions durch iterieren
             Decoder.decodeInstruction(InstructionRegistry[PC - 1], this);
-            //dumpRegistry();
-            //dumpMemory();
         } while (PC != 0);
     }
 }

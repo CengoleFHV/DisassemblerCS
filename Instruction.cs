@@ -1,5 +1,10 @@
 ﻿namespace RiscVCS;
 
+/*
+ * Instruction Klasse die die Gemeinsamkeiten die alle Instructions mit sich teilen in einer Klasse
+ * verbinden soll.
+ */
+
 public enum IEF {
     U,
     J,
@@ -31,7 +36,8 @@ public class Instruction {
             }
         }
         /*TODO: Two's Complement am besten mit bitshifting lösen statt dem zerhackten müll
-         * >> zieht den MSB durch alles durch (0b_1000 >> 2 würde zu 0b_1110 werden) 
+         * >> zieht den MSB durch alles durch (0b_1000 >> 2 würde zu 0b_1110 werden)
+         * in C# gibt es den >>> Operator der den MSB nicht mitziehtsch
          */
     }
 

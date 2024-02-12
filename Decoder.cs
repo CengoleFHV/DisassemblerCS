@@ -1,5 +1,13 @@
 ﻿namespace RiscVCS;
 
+/*
+ * Decoder Klasse
+ * 
+ * Funktion dieser Klasse ist die Entzifferung der HEX Instructions
+ * und die Ausarbeitung der Instructions auf den RiscV ausweitet
+ * 
+ */
+
 public class Decoder {
     public static void decodeInstruction(uint instructionHex, RiscV riscV) {
         Instruction instruction = new Instruction
@@ -7,6 +15,8 @@ public class Decoder {
             OpCode = instructionHex & 0x7f,
             Funct3 = (instructionHex & 0x7000) >> 12
         };
+
+        // Decoding Funktion anhand des Opcodes
 
         switch (instruction.OpCode) {
             case 0b_000_0011:
@@ -53,6 +63,8 @@ public class Decoder {
 
         uint address = (uint)(riscV.readRegisterValue(instruction.Rs1) + instruction.ImmValue);
         var memoryValue = riscV.readMemoryValue(address);
+
+        // Ausarbeitung der Werte die die meisten instructions teilen stehen immer am anfang der Funktion
 
         switch (instruction.OpCode) {
             case 0b_110_0111:
@@ -181,6 +193,8 @@ public class Decoder {
 
         var rs1Value = riscV.readRegisterValue(instruction.Rs1);
         var rs2Value = riscV.readRegisterValue(instruction.Rs2);
+
+        // check ob RV32M Instructions vorkommen
 
         if (isRV32M) {
 
