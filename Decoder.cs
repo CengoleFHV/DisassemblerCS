@@ -4,7 +4,7 @@
  * Decoder Klasse
  * 
  * Funktion dieser Klasse ist die Entzifferung der HEX Instructions
- * und die Ausarbeitung der Instructions auf den RiscV ausweitet
+ * und die Ausarbeitung der Instructions auf dem RiscV
  * 
  */
 
